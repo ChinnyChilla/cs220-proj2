@@ -62,24 +62,24 @@ floatx doubleToFloatx(double val,int totBits,int expBits) {
 	// When exp is not overflowing or underflowing
 	exp += (1 << (expBits-1))-1;
 
-	// put the bits in the resultingFloat
+	// put the new exp bits in the resultingFloat
 	setBitFld(totBits-2, expBits, exp, &resultingFloat);
 
-	// Get the fraction
-	unsigned long fracbitss = (((unsigned long) ~0UL <<12) >> 12) & v.longVal;
+	// Get the fraction bits
+	unsigned long fracbits = (((unsigned long) ~0UL <<12) >> 12) & v.longVal;
 
 	// doubleFracBits > longFracbits -- remove bits
 	int longFracbits = totBits - (expBits +1);
 	// printf("%d \n", longFracbits);
 	if (52 > longFracbits) {
-		fracbitss >>= (52 - longFracbits);
+		fracbits >>= (52 - longFracbits);
 	}
 	// longFracBits > doubleBits -- add bits
 	else if (52 < longFracbits) {
-		fracbitss <<= (longFracbits - 52);
+		fracbits <<= (longFracbits - 52);
 	}
 
-	return fracbitss | resultingFloat;
+	return fracbits | resultingFloat;
 	
 	/*-----------------------------------------------------------------------------------------------
 		From the README: 	At a high level, doing the conversion requires several manipulations:
