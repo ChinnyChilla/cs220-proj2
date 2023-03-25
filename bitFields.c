@@ -19,7 +19,7 @@ void setBit(int bn,int new,unsigned long *val) {
 	} else {
 		*val = *val & ~tempVal;
 	}
-	printf("setbit finished %d\n", bn);
+	// printf("setbit finished %d\n", bn);
 	// TODO:
 	//		check to make sure bn is a valid bit position in long (you may assert this is true)
 	//		if new is true, set the bit in val at bn to 1
@@ -78,13 +78,4 @@ void setBitFld(int bs,int len,unsigned long new,unsigned long *val) {
 	mask <<= bs - len + 1;
 	*val = *val & ~mask;
 	*val = *val | result;
-	// TODO:
-	//		check to make sure bs is a valid bit position in long (you may assert this is true)
-	//		check to make sure len is a valid length for a subfield that starts at bs (you may assert this is true)
-	//      Make a mask that has len bits, right justified
-	//		Use mask to turn off any bits to the left of the bitField values in new
-	// 		Shift both the new value and the mask to the correct bit position
-	//		Turn off all bits in *val under the mask by bitwise anding with ~mask
-	//		Or *val with new.  (new has zeros for all non bit field positions, so won't affect val)
-	printf("setbtfld finished %d\n", bs);
 }

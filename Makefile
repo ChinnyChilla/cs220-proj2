@@ -5,7 +5,7 @@ LDFLAGS = -lm
 test : testFloatx bitFields.c bitFields.h
 	./testFloatx 32 8 <test1.txt
 	./testFloatx 16 4 <test1.txt
-	./testFloatx 64 8 <test1.txt
+	./testFloatx 64 11 <test1.txt
 	
 gdb : testFloatx
 	gdb -ex "break doubleToFloatx" -ex "run" --args ./testFloatx 16 4
