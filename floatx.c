@@ -10,21 +10,6 @@ union originalVal {
 	long longVal;
 	float floatVal;
 };
-#define print_bits(x)                                    \
-	do                                                   \
-	{                                                    \
-		unsigned long long a__ = (x);                    \
-		int count = 0;									 \
-		size_t bits__ = sizeof(x) * 8;                   \
-		printf(#x ": ");                                 \
-		while (bits__--) {								 \
-			if (count % 4 == 0)printf(" ");              \
-			putchar(a__ & (1ULL << bits__) ? '1' : '0'); \
-			count++;									\
-		}												\
-		putchar('\n');                                   \
-	} while (0)
-
 floatx doubleToFloatx(double val,int totBits,int expBits) {
 	assert(totBits > expBits);
 	assert(expBits > 0);
@@ -33,9 +18,9 @@ floatx doubleToFloatx(double val,int totBits,int expBits) {
 	union originalVal v;
 	v.doubleVal = val;
 	long longVal = v.longVal;
-	// print_bits(v.longVal);
+
+	// Setting the sign bit
 	char signBit = getBit(63, longVal);
-	// printf("Current signbit %d\n", signBit);
 	if (signBit) setBit(totBits-1, 1, &resultingFloat);
 
 	// Special Cases
@@ -44,7 +29,6 @@ floatx doubleToFloatx(double val,int totBits,int expBits) {
 	// inf
 	if (isinf(v.doubleVal)) {
 		unsigned long allOnes = ~0UL;
-		// setBit(totBits-1, 1, &resultingFloat);
 		setBitFld(totBits - 2, expBits, allOnes, &resultingFloat);
 		v.floatVal = resultingFloat;
 		return (floatx) resultingFloat;
@@ -54,11 +38,10 @@ floatx doubleToFloatx(double val,int totBits,int expBits) {
 	{
 		long allOnes = ~0L;
 		setBitFld(totBits - 2, expBits+1, allOnes, &resultingFloat);
-		// print_bits(resultingFloat);
 		v.floatVal = resultingFloat;
 		return (floatx) resultingFloat;
 	}
-	// print_bits(v.longVal);
+
 	// Getting the bias exponent
 	long exp = ((unsigned long) v.longVal << 1) >>53;
 	exp -= (1 << 10) - 1;
@@ -78,27 +61,26 @@ floatx doubleToFloatx(double val,int totBits,int expBits) {
 	}
 	// When exp is not overflowing or underflowing
 	exp += (1 << (expBits-1))-1;
-	// print_bits(exp);
 
 	// put the bits in the resultingFloat
 	setBitFld(totBits-2, expBits, exp, &resultingFloat);
 
+	// Get the fraction
 	unsigned long fracbitss = (((unsigned long) ~0UL <<12) >> 12) & v.longVal;
 
-	// doubleFracBits > longFracbits
+	// doubleFracBits > longFracbits -- remove bits
 	int longFracbits = totBits - (expBits +1);
 	// printf("%d \n", longFracbits);
 	if (52 > longFracbits) {
 		fracbitss >>= (52 - longFracbits);
 	}
-	// longFracBits > doubleBits
+	// longFracBits > doubleBits -- add bits
 	else if (52 < longFracbits) {
 		fracbitss <<= (longFracbits - 52);
 	}
-	// print_bits(fracbitss);
+
 	return fracbitss | resultingFloat;
 	
-		setBitFld((totBits - expBits - 2), (totBits - expBits - 1), fracbitss, &resultingFloat);
 	/*-----------------------------------------------------------------------------------------------
 		From the README: 	At a high level, doing the conversion requires several manipulations:
 		1. Extracting the sign bit from the double v	alue, and inserting it into the floatx value at
@@ -119,6 +101,4 @@ floatx doubleToFloatx(double val,int totBits,int expBits) {
 
 	// First, make some assertions to ensure the totBits and expBits parameters are OK
 	// Then, implement the algorithm
-
-	return (floatx) resultingFloat; // Remove this when you are done.
 }
